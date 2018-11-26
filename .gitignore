@@ -1,4 +1,9 @@
-/bin/
+#################
+## Eclipse
+#################
+
+*.pydevproject
+.project
 .metadata
 bin/
 tmp/
@@ -7,6 +12,36 @@ tmp/
 *.swp
 *~.nib
 local.properties
+.classpath
 .settings/
 .loadpath
-.recommenders
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.class
+
+#Intellij
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Code Recommenders
+.recommenders/
+
+# Annotation Processing
+.apt_generated/
