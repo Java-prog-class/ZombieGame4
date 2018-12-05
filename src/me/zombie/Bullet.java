@@ -21,9 +21,9 @@ public class Bullet {
 		g.fillOval(a-radius, b-radius, 2*radius, 2*radius);
 	}
 	
-	void move() {
-		x+=vx;
-		y+=vy;
+	void move(Player p) {
+		x+=vx+p.vx;
+		y+=vy+p.vy;
 	}
 	
 	public void getShotDirection(double x,double y){

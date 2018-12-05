@@ -20,20 +20,22 @@ import javax.swing.Timer;
 
 public class GUI extends JFrame {
 	
-	int panSize=400;
+	static int panSize=400;
 	
 	int spawnRate=90;
 	
-	final int PX=panSize/2, PY=PX, PRAD=10;
+	
 	
 	Timer t=new Timer(20,new Time());
 	DrawingPanel panel=new DrawingPanel();
+	Player p=new Player();
 	
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
 	ArrayList<Zambo> zambies=new ArrayList<Zambo>();
 	Zambo z=new Zambo(100,100);
 	
 	GUI(){
+		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
 		zambies.add(z);
 		
@@ -63,7 +65,7 @@ public class GUI extends JFrame {
 			Graphics2D g2 = (Graphics2D) g;		
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			draw(g2);
-			g2.drawOval(PX-PRAD, PY-PRAD, PRAD*2, PRAD*2);
+			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
 		}
 	}
 	
@@ -90,10 +92,14 @@ public class GUI extends JFrame {
 		public void keyTyped(KeyEvent e) {}
 
 		@Override
-		public void keyPressed(KeyEvent e) {}
+		public void keyPressed(KeyEvent e) {
+			p.move(e);
+		}
 
 		@Override
-		public void keyReleased(KeyEvent e) {}
+		public void keyReleased(KeyEvent e) {
+			p.stopMove(e);
+		}
 	}
 	
 	class Time implements ActionListener{
@@ -111,10 +117,10 @@ public class GUI extends JFrame {
 	
 	void movement() {	//move everything
 		for (Bullet b:bullets) {
-			b.move();
+			b.move(p);
 		}
 		for (Zambo z:zambies) {
-			z.checkClose(200, 200);
+			z.checkClose(p);
 		}
 	}
 	
@@ -142,6 +148,7 @@ public class GUI extends JFrame {
 			if (b.x<0 || b.x>panSize || b.y<0 || b.y>panSize) {	//Go off screen
 				bullets.remove(i);
 				i--;
+				continue;
 			}
 			if (b.hasHit) {	//If it has hit a zombie
 				bullets.remove(i);
@@ -165,15 +172,15 @@ public class GUI extends JFrame {
 		int x=0,y=0;
 		
 		while (bad) {
-			x=(int)(Math.random()*panSize);	//Create random x an y coords
-			y=(int)(Math.random()*panSize);
+			x=(int)(Math.random()*(panSize*2)-panSize);	//Create random x an y coords
+			y=(int)(Math.random()*(panSize*2)-panSize);
 			
 			int dX=200-x,dY=200-y;
 			
 			//Use pythagorean formula to find the distance between the zombie and player
 			double length=Math.sqrt(dX*dX+dY*dY);
 			
-			if (length<100) {	//If the zombie is spawning too close to the player, make new x and y
+			if (length<300) {	//If the zombie is spawning too close to the player, make new x and y
 				continue;
 			} else {
 				break;
