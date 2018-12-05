@@ -1,6 +1,5 @@
 package me.zombie;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,7 +9,6 @@ import java.awt.RenderingHints;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
 
 public class GUI extends JFrame {
 	public static void main(String[] args) {
@@ -23,7 +21,7 @@ public class GUI extends JFrame {
 	
 	GUI(){
 		this.add(new DrawPanel());	
-		this.setTitle("Main graphics ..."); 
+		this.setTitle("Main graphics"); 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.pack();
@@ -32,11 +30,13 @@ public class GUI extends JFrame {
 	
 	class DrawPanel extends JPanel {
 					
-		int panSize=400;
+		int panSize=1000;
 		
 		DrawPanel() {	
 			this.setBackground(Color.WHITE);			
-			this.setPreferredSize(new Dimension(panSize, panSize));		
+			this.setPreferredSize(new Dimension(panSize, panSize));	
+			setResizable(false);
+			
 		}
 		
 		@Override
@@ -54,7 +54,5 @@ public class GUI extends JFrame {
 			g.setColor(Color.BLUE);
 			g.drawOval(panSize/2-r/2, panSize/2-r/2, r, r);			
 		}
-		
-		
 	}	
 }
