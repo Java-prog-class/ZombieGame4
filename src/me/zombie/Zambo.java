@@ -5,43 +5,46 @@ import java.awt.Rectangle;
 
 public class Zambo {
 	static int speed=1;
-	int x,y,vx=speed,vy=speed,trigger=210,radius=10,health=5;
+	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5;
 	
 	Zambo(int x, int y){
 		this.x=x;
 		this.y=y;
 	}
 	
-	void checkClose(int x, int y) {	//Check if the player has entered the trigger radius
-		int dX=this.x-x,dY=this.y-y;
+	void checkClose(Player p) {	//Check if the player has entered the trigger radius
+		int dX=x-p.x,dY=y-p.y;
 		
 		//Use pythagorean formula to find the distance between the zombie and player
 		double length=Math.sqrt(dX*dX+dY*dY);
 		
 		if (length<=trigger) {	//Check if they're close enough
-			move(x,y);
+			move(p);
+		} else {
+			x+=p.vx;
+			y+=p.vy;
 		}
 	}
 	
-	void move(int x, int y){	//Move toward the player (takes player x and y
-		if (this.x>x) {	//If the zombie if to the right of the player
+	void move(Player p){	//Move toward the player (takes player x and y
+		if (x>p.x) {	//If the zombie if to the right of the player
 			vx=-speed;
-		} else if (this.x==x){	//If they are on the same y axis
+		} else if (x==p.x){	//If they are on the same y axis
 			vx=0;
 		} else {	//If the zombie is to the left of the player
 			vx=speed;
 		}
 		
-		if (this.y>y) {	//If the zombie is lower than the player
+		if (y>p.y) {	//If the zombie is lower than the player
 			vy=-speed;
-		} else if (this.y==y) {	//If it is at the same height
+		} else if (y==p.y) {	//If it is at the same height
 			vy=0;
 		} else {	//If the zombie is above the player
 			vy=speed;
 		}
 		
-		this.x+=vx;
-		this.y+=vy;
+		x+=vx+p.vx;
+		y+=vy+p.vy;
 	}
 	
 	void paint(Graphics2D g) {
