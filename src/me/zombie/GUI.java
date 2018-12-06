@@ -32,20 +32,30 @@ public class GUI extends JFrame {
 	
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
 	ArrayList<Zambo> zambies=new ArrayList<Zambo>();
-	Zambo z=new Zambo(100,100);
 	
+	//Main program
 	GUI(){
-		panel.addKeyListener(new KL());
-		panel.addMouseListener(new ML());
+		setupData();
+		setupGUI();				
+		t.start();
+	}
+
+	void setupData() {
+		Zambo z=new Zambo(100,100);
 		zambies.add(z);
 		
+		loadImages();
+	}
+	
+	void setupGUI() {		
+		panel.addKeyListener(new KL());
+		panel.addMouseListener(new ML());
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		this.pack();
 		this.setVisible(true);
-		t.start();
 	}
 	
 	class DrawingPanel extends JPanel {
@@ -64,7 +74,11 @@ public class GUI extends JFrame {
 			panSize = this.getWidth();
 			Graphics2D g2 = (Graphics2D) g;		
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			//draw zombies and everything else
 			draw(g2);
+			
+			//draw player
 			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
 		}
 	}
@@ -190,6 +204,11 @@ public class GUI extends JFrame {
 		zambies.add(new Zambo(x,y));
 		
 	}
+	
+	void loadImages() {
+		
+	}
+	
 	
 	public static void main(String[] args) {
 		new GUI();
