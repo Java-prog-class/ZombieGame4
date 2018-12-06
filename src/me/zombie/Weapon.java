@@ -192,6 +192,3 @@ public class Weapon {
 		
 	}
 }
-
-
-
