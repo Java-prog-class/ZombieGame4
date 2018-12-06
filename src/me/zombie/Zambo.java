@@ -5,7 +5,7 @@ import java.awt.Rectangle;
 
 public class Zambo {
 	static int speed=1;
-	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5;
+	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5,damage=1;
 	
 	Zambo(int x, int y){
 		this.x=x;

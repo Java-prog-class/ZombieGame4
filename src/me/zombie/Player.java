@@ -1,6 +1,7 @@
 package me.zombie;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
@@ -10,18 +11,20 @@ public class Player {
 	final int x=GUI.panSize/2, y=x, radius=10;
 	
 	//stats
-	private static int maxHealth = 100;
-	private static int maxSpeed = 15;
-	private static int minSpeed = 5;
+	private static int maxHealth = 10;
+	private static int maxSpeed = 3;
+	private static int minSpeed = 1;
 	private static int maxAttack = 10;	//TODO: depending on Weapons class attack variable here may be unnecessary
 	private static int minAttack = 5; 
-	int health = 100;
+	int health = maxHealth;
 	int speed = 3;	
 	int attack = 10; 
 	
 	//start coords
 	int vx=0;
 	int vy=0;
+	
+	boolean iFrames=false;
 	
 	public Player() {
 	}
@@ -87,5 +90,30 @@ public class Player {
 		if(e.getKeyCode() == e.VK_D || e.getKeyCode() == e.VK_RIGHT) {
 			vx = 0;
 		}
+	}
+	
+	public void checkHit(Zambo z) {
+		int dX=this.x-z.x,dY=this.y-z.y;
+		
+		//Use pythagorean formula to find the distance between the zombie and bullet
+		double length=Math.sqrt(dX*dX+dY*dY);
+		
+		/*
+		 * Check if they are intersecting by adding the radii of the zombie and the bullet and seeing if
+		 * the distance between them is equal or less than that
+		 */
+		if (length<=radius+z.radius && !iFrames) {
+			health-=z.damage;
+			iFrames=true;
+		}
+	}
+	
+	public boolean checkHit(Barrier b) {
+		Rectangle p=new Rectangle(x-radius,y-radius,radius*2,radius*2);
+		
+		if (p.intersects(b)) {
+			return true;
+		}
+		return false;
 	}
 }
