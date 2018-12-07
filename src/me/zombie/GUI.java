@@ -31,16 +31,16 @@ public class GUI extends JFrame {
 	Player p=new Player();
 	
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
-	ArrayList<Zambo> zambies=new ArrayList<Zambo>();
+	ArrayList<Ghost> ghosts=new ArrayList<Ghost>();
 	ArrayList<Barrier> barriers=new ArrayList<Barrier>();
-	Zambo z=new Zambo(100,100);
+	Ghost z=new Ghost(100,100);
 	
 	GUI(){
 		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
 		addBarriers();
 		
-		zambies.add(z);
+		ghosts.add(z);
 		
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
@@ -139,7 +139,7 @@ public class GUI extends JFrame {
 		for (Bullet b:bullets) {
 			b.move(p);
 		}
-		for (Zambo z:zambies) {
+		for (Ghost z:ghosts) {
 			z.checkClose(p);
 		}
 		for (Barrier b:barriers) {
@@ -151,7 +151,7 @@ public class GUI extends JFrame {
 		for (Bullet b:bullets) {
 			b.paint(g);
 		}
-		for (Zambo z:zambies) {
+		for (Ghost z:ghosts) {
 			z.paint(g);
 		}
 		for (Barrier b:barriers) {
@@ -161,12 +161,12 @@ public class GUI extends JFrame {
 	
 	void checkHits(){	//Check all collision
 		for (Bullet b:bullets) {
-			for (Zambo z:zambies) {
+			for (Ghost z:ghosts) {
 				z.checkHit(b);
 			}
 		}
 		
-		for (Zambo z:zambies) {
+		for (Ghost z:ghosts) {
 			p.checkHit(z);
 		}
 		
@@ -176,7 +176,7 @@ public class GUI extends JFrame {
 					for (Bullet a:bullets) {
 						a.x+=-p.vx;
 					}
-					for (Zambo z:zambies) {
+					for (Ghost z:ghosts) {
 						z.x+=-p.vx;
 					}
 					for (Barrier c:barriers) {
@@ -186,7 +186,7 @@ public class GUI extends JFrame {
 					for (Bullet a:bullets) {
 						a.y+=-p.vy;
 					}
-					for (Zambo z:zambies) {
+					for (Ghost z:ghosts) {
 						z.y+=-p.vy;
 					}
 					for (Barrier c:barriers) {
@@ -221,10 +221,10 @@ public class GUI extends JFrame {
 		}
 		
 		//Zombies
-		for (int i=0;i<zambies.size();i++) {
-			Zambo z=zambies.get(i);
+		for (int i=0;i<ghosts.size();i++) {
+			Ghost z=ghosts.get(i);
 			if (z.health<=0) {	//If zombie has 0 or less health
-				zambies.remove(i);
+				ghosts.remove(i);
 				i--;
 				spawnRate--;
 			}
@@ -255,7 +255,7 @@ public class GUI extends JFrame {
 				break;
 			}
 		}
-		zambies.add(new Zambo(x,y));
+		ghosts.add(new Ghost(x,y));
 	}
 	
 	void addBarriers() {

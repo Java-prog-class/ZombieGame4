@@ -92,7 +92,7 @@ public class Player {
 		}
 	}
 	
-	public void checkHit(Zambo z) {
+	public void checkHit(Ghost z) {
 		int dX=this.x-z.x,dY=this.y-z.y;
 		
 		//Use pythagorean formula to find the distance between the zombie and bullet
