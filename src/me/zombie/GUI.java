@@ -24,14 +24,14 @@ public class GUI extends JFrame {
 	
 	int spawnRate=90;
 	
-	
-	
 	Timer t=new Timer(20,new Time());
 	DrawingPanel panel=new DrawingPanel();
 	Player p=new Player();
 	
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
 	ArrayList<Zambo> zambies=new ArrayList<Zambo>();
+	ArrayList<Barrier> barriers=new ArrayList<Barrier>();
+	Zambo z=new Zambo(100,100);
 	
 	//Main program
 	GUI(){
@@ -50,6 +50,15 @@ public class GUI extends JFrame {
 	void setupGUI() {		
 		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
+		
+		//There must be little book-end walls on the end of long walls
+		barriers.add(new Barrier(100,100,150,true));
+		barriers.add(new Barrier(100,240,10,false));	//Book-end
+		barriers.add(new Barrier(100,100,150,false));
+		barriers.add(new Barrier(240,100,10,true));	//Book-End
+		
+		zambies.add(z);
+		
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,8 +87,12 @@ public class GUI extends JFrame {
 			//draw zombies and everything else
 			draw(g2);
 			
-			//draw player
+			//Player
 			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
+			
+			//Health
+			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
+			g2.drawString("Health: "+p.health, (panSize/3)*2+panSize/8, panSize/8);
 		}
 	}
 	
@@ -117,12 +130,22 @@ public class GUI extends JFrame {
 	}
 	
 	class Time implements ActionListener{
-		int frameCount=0;
+		int frameCount=0;	//Number of frames
+		int iFrameCount=0;	//Used for tracking how long the player should be invincible
 		
 		public void actionPerformed(ActionEvent e) {
 			if (frameCount%spawnRate==0) zombieSpawn();
 			movement();
 			checkHits();
+			
+			if (p.iFrames) {
+				iFrameCount++;
+			}
+			if (iFrameCount==20) {
+				p.iFrames=false;
+				iFrameCount=0;
+			}
+			
 			checkDeaths();
 			panel.repaint();
 			frameCount++;
@@ -136,6 +159,9 @@ public class GUI extends JFrame {
 		for (Zambo z:zambies) {
 			z.checkClose(p);
 		}
+		for (Barrier b:barriers) {
+			b.move(p);
+		}
 	}
 	
 	void draw(Graphics2D g) {	//Draw everything
@@ -145,12 +171,45 @@ public class GUI extends JFrame {
 		for (Zambo z:zambies) {
 			z.paint(g);
 		}
+		for (Barrier b:barriers) {
+			b.paint(g);
+		}
 	}
 	
 	void checkHits(){	//Check all collision
 		for (Bullet b:bullets) {
 			for (Zambo z:zambies) {
 				z.checkHit(b);
+			}
+		}
+		
+		for (Zambo z:zambies) {
+			p.checkHit(z);
+		}
+		
+		for (Barrier b:barriers) {
+			if (p.checkHit(b)) {	//If the player has moved into a wall, move the player outta there
+				if (b.wall) {	//If it's a vertical wall
+					for (Bullet a:bullets) {
+						a.x+=-p.vx;
+					}
+					for (Zambo z:zambies) {
+						z.x+=-p.vx;
+					}
+					for (Barrier c:barriers) {
+						c.x+=-p.vx;
+					}
+				} else {	//If it's a horizontal wall
+					for (Bullet a:bullets) {
+						a.y+=-p.vy;
+					}
+					for (Zambo z:zambies) {
+						z.y+=-p.vy;
+					}
+					for (Barrier c:barriers) {
+						c.y+=-p.vy;
+					}
+				}
 			}
 		}
 	}
@@ -179,6 +238,11 @@ public class GUI extends JFrame {
 				spawnRate--;
 			}
 		}
+		
+		//Player
+		if (p.health<=0) {
+			System.exit(500);
+		}
 	}
 	
 	void zombieSpawn() {
@@ -200,9 +264,7 @@ public class GUI extends JFrame {
 				break;
 			}
 		}
-		
 		zambies.add(new Zambo(x,y));
-		
 	}
 	
 	void loadImages() {
