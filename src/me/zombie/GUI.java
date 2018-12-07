@@ -22,6 +22,8 @@ public class GUI extends JFrame {
 	
 	static int panSize=400;
 	
+	final int mapSize=800;
+	
 	int spawnRate=90;
 	
 	Timer t=new Timer(20,new Time());
@@ -36,12 +38,7 @@ public class GUI extends JFrame {
 	GUI(){
 		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
-		
-		//There must be little book-end walls on the end of long walls
-		barriers.add(new Barrier(100,100,150,true));
-		barriers.add(new Barrier(100,240,10,false));	//Book-end
-		barriers.add(new Barrier(100,100,150,false));
-		barriers.add(new Barrier(240,100,10,true));	//Book-End
+		addBarriers();
 		
 		zambies.add(z);
 		
@@ -75,8 +72,9 @@ public class GUI extends JFrame {
 			//Player
 			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
 			
-			//Health
+			//Health/stats
 			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
+			g2.drawString("Weapon: ???", (panSize/3)*2+panSize/8, panSize/16);
 			g2.drawString("Health: "+p.health, (panSize/3)*2+panSize/8, panSize/8);
 		}
 	}
@@ -211,6 +209,14 @@ public class GUI extends JFrame {
 			if (b.hasHit) {	//If it has hit a zombie
 				bullets.remove(i);
 				i--;
+				continue;
+			}
+			for (Barrier bar:barriers) {
+				if (b.checkHit(bar)) {
+					bullets.remove(i);
+					i--;
+					break;
+				}
 			}
 		}
 		
@@ -235,8 +241,8 @@ public class GUI extends JFrame {
 		int x=0,y=0;
 		
 		while (bad) {
-			x=(int)(Math.random()*(panSize*2)-panSize);	//Create random x an y coords
-			y=(int)(Math.random()*(panSize*2)-panSize);
+			x=(int)(Math.random()*(mapSize)-mapSize/2);	//Create random x an y coords
+			y=(int)(Math.random()*(mapSize)-mapSize/2);
 			
 			int dX=200-x,dY=200-y;
 			
@@ -250,6 +256,20 @@ public class GUI extends JFrame {
 			}
 		}
 		zambies.add(new Zambo(x,y));
+	}
+	
+	void addBarriers() {
+		//Edge of screen barriers
+		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,true));	//Left wall
+		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,false));	//Up wall
+		barriers.add(new Barrier(mapSize-panSize,panSize-mapSize,mapSize,true));	//Right wall
+		barriers.add(new Barrier(panSize-mapSize,mapSize-panSize,mapSize,false));	//Bottom wall
+		
+		//There must be little book-end walls on the end of long walls
+		barriers.add(new Barrier(100,100,150,true));
+		barriers.add(new Barrier(100,240,10,false));	//Book-end
+		barriers.add(new Barrier(100,100,150,false));
+		barriers.add(new Barrier(240,100,10,true));	//Book-End
 	}
 	
 	public static void main(String[] args) {
