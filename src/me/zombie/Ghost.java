@@ -3,11 +3,11 @@ package me.zombie;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 
-public class Zambo {
+public class Ghost {
 	static int speed=1;
 	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5,damage=1;
 	
-	Zambo(int x, int y){
+	Ghost(int x, int y){
 		this.x=x;
 		this.y=y;
 	}
