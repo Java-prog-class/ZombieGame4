@@ -2,6 +2,7 @@ package me.zombie;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 
 public class Bullet {
 	double x,y,vx=0,vy=0;
@@ -64,5 +65,14 @@ public class Bullet {
 		
 		if (this.x>x) vx=-vx;	//If the player is further right than the mouse
 		if (this.y>y) vy=-vy;	//If the player is further down than the mouse
+	}
+	
+	public boolean checkHit(Barrier b) {
+		Rectangle bullet=new Rectangle((int)(x)-radius,(int)(y)-radius,radius*2,radius*2);
+		
+		if (b.intersects(bullet)) {
+			return true;
+		}
+		return false;
 	}
 }
