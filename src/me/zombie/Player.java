@@ -9,6 +9,7 @@ public class Player {
 
 	//***global variables***
 	final int x=GUI.panSize/2, y=x, radius=10;
+	Weapon held=new Weapon(1);
 	
 	//stats
 	private static int maxHealth = 10;
@@ -24,7 +25,7 @@ public class Player {
 	int vx=0;
 	int vy=0;
 	
-	boolean iFrames=false;
+	boolean iFrames=false,firing=false,hasShot=false;
 	
 	public Player() {
 	}
@@ -92,7 +93,7 @@ public class Player {
 		}
 	}
 	
-	public void checkHit(Zambo z) {
+	public void checkHit(Ghost z) {
 		int dX=this.x-z.x,dY=this.y-z.y;
 		
 		//Use pythagorean formula to find the distance between the zombie and bullet
