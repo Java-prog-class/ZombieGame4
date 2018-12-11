@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -11,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -20,11 +22,12 @@ import javax.swing.Timer;
 
 public class GUI extends JFrame {
 	
-	static int panSize=400;
+	static int panSize=400;	//Size of Screen
 	
-	final int mapSize=800;
+	final int mapSize=800;	//Size of map
 	
-	int spawnRate=90;
+	int spawnRate=90;	//Ghost spawn rate
+	int mX=0,mY=0;	//Mouse X and Y
 	
 	Timer t=new Timer(20,new Time());
 	DrawingPanel panel=new DrawingPanel();
@@ -33,14 +36,14 @@ public class GUI extends JFrame {
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
 	ArrayList<Ghost> ghosts=new ArrayList<Ghost>();
 	ArrayList<Barrier> barriers=new ArrayList<Barrier>();
-	Ghost z=new Ghost(100,100);
+	ArrayList<Weapon> weapons=new ArrayList<Weapon>();
 	
 	GUI(){
 		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
+		panel.addMouseMotionListener(new MML());
+		addWeapons();
 		addBarriers();
-		
-		ghosts.add(z);
 		
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
@@ -74,8 +77,8 @@ public class GUI extends JFrame {
 			
 			//Health/stats
 			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
-			g2.drawString("Weapon: ???", (panSize/3)*2+panSize/8, panSize/16);
-			g2.drawString("Health: "+p.health, (panSize/3)*2+panSize/8, panSize/8);
+			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/16);
+			g2.drawString("Health: "+p.health, (panSize/7)*4+panSize/8, panSize/8);
 		}
 	}
 	
@@ -85,15 +88,34 @@ public class GUI extends JFrame {
 		public void mouseClicked(MouseEvent e) {}
 		@Override
 		public void mousePressed(MouseEvent e) {
-			//Shoot a bullet
-			bullets.add(new Bullet(200,200,e.getX(),e.getY()));
+			p.firing=true;	//Activate shooting
 		}
 		@Override
-		public void mouseReleased(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {
+			//If it is a full auto weapon deactivate shooting when the mouse is released, not when the firing sequence is done
+			if (p.held.auto) {
+				p.firing=false;	
+			}
+		}
 		@Override
 		public void mouseEntered(MouseEvent e) {}
 		@Override
 		public void mouseExited(MouseEvent e) {}
+	}
+	
+	class MML implements MouseMotionListener{
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			mX=e.getX();
+			mY=e.getY();
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			mX=e.getX();
+			mY=e.getY();
+		}
+		
 	}
 	
 	class KL implements KeyListener{
@@ -104,6 +126,7 @@ public class GUI extends JFrame {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			p.move(e);
+			switchWeapons(e);
 		}
 
 		@Override
@@ -115,11 +138,16 @@ public class GUI extends JFrame {
 	class Time implements ActionListener{
 		int frameCount=0;	//Number of frames
 		int iFrameCount=0;	//Used for tracking how long the player should be invincible
+		int shotCount=0;
 		
 		public void actionPerformed(ActionEvent e) {
 			if (frameCount%spawnRate==0) zombieSpawn();
 			movement();
 			checkHits();
+			if (p.firing && !p.hasShot) {
+				shoot();
+				p.hasShot=true;
+			}
 			
 			if (p.iFrames) {
 				iFrameCount++;
@@ -127,6 +155,15 @@ public class GUI extends JFrame {
 			if (iFrameCount==20) {
 				p.iFrames=false;
 				iFrameCount=0;
+			}
+			
+			if (p.firing) {
+				shotCount++;
+			}
+			if (shotCount>=p.held.rate) {
+				if (!p.held.auto) p.firing=false;
+				p.hasShot=false;
+				shotCount=0;
 			}
 			
 			checkDeaths();
@@ -211,6 +248,11 @@ public class GUI extends JFrame {
 				i--;
 				continue;
 			}
+			if (b.distance>b.maxD){	//If it has exceeded it's range
+				bullets.remove(i);
+				i--;
+				continue;
+			}
 			for (Barrier bar:barriers) {
 				if (b.checkHit(bar)) {
 					bullets.remove(i);
@@ -258,6 +300,19 @@ public class GUI extends JFrame {
 		ghosts.add(new Ghost(x,y));
 	}
 	
+	void shoot() {
+		//Shoot a bullet
+		bullets.add(new Bullet(p,mX,mY));
+		
+		if (p.held.weaponHeld==Weapon.SHOTGUN) {
+			Point puh=Bullet.getShotgun(mX, mY,true);
+			bullets.add(new Bullet(p,puh.x,puh.y));
+			
+			puh=Bullet.getShotgun(mX, mY,false);
+			bullets.add(new Bullet(p,puh.x,puh.y));
+		}
+	}
+	
 	void addBarriers() {
 		//Edge of screen barriers
 		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,true));	//Left wall
@@ -270,6 +325,28 @@ public class GUI extends JFrame {
 		barriers.add(new Barrier(100,240,10,false));	//Book-end
 		barriers.add(new Barrier(100,100,150,false));
 		barriers.add(new Barrier(240,100,10,true));	//Book-End
+	}
+	
+	void addWeapons() {
+		weapons.add(new Weapon(0));
+		weapons.add(new Weapon(1));
+		weapons.add(new Weapon(2));
+		weapons.add(new Weapon(3));
+		weapons.add(new Weapon(4));
+		weapons.add(new Weapon(5));
+		weapons.add(new Weapon(6));
+		weapons.add(new Weapon(7));
+	}
+	
+	void switchWeapons(KeyEvent e) {
+		if (e.getKeyCode()==KeyEvent.VK_1) p.held=weapons.get(0);
+		if (e.getKeyCode()==KeyEvent.VK_2) p.held=weapons.get(1);
+		if (e.getKeyCode()==KeyEvent.VK_3) p.held=weapons.get(2);
+		if (e.getKeyCode()==KeyEvent.VK_4) p.held=weapons.get(3);
+		if (e.getKeyCode()==KeyEvent.VK_5) p.held=weapons.get(4);
+		if (e.getKeyCode()==KeyEvent.VK_6) p.held=weapons.get(5);
+		if (e.getKeyCode()==KeyEvent.VK_7) p.held=weapons.get(6);
+		if (e.getKeyCode()==KeyEvent.VK_8) p.held=weapons.get(7);
 	}
 	
 	public static void main(String[] args) {
