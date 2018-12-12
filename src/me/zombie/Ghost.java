@@ -18,7 +18,7 @@ public class Ghost {
 	void checkClose(Player p) {	//Check if the player has entered the trigger radius
 		int dX=x-p.x,dY=y-p.y;
 		
-		//Use pythagorean formula to find the distance between the zombie and player
+		//Use pythagorean formula to find the distance between the ghost and player
 		double length=Math.sqrt(dX*dX+dY*dY);
 		
 		if (length<=trigger) {	//Check if they're close enough
@@ -30,19 +30,19 @@ public class Ghost {
 	}
 	
 	void move(Player p){	//Move toward the player (takes player x and y)
-		if (x>p.x) {	//If the zombie is to the right of the player
+		if (x>p.x) {	//If the ghost is to the right of the player
 			vx=-speed;
 		} else if (x==p.x){	//If they are on the same y axis
 			vx=0;
-		} else {	//If the zombie is to the left of the player
+		} else {	//If the ghost is to the left of the player
 			vx=speed;
 		}
 		
-		if (y>p.y) {	//If the zombie is lower than the player
+		if (y>p.y) {	//If the ghost is lower than the player
 			vy=-speed;
 		} else if (y==p.y) {	//If it is at the same height
 			vy=0;
-		} else {	//If the zombie is above the player
+		} else {	//If the ghost is above the player
 			vy=speed;
 		}
 		
@@ -57,16 +57,16 @@ public class Ghost {
 	void checkHit(Bullet b){
 		int dX=this.x-(int)(b.x),dY=this.y-(int)(b.y);
 		
-		//Use pythagorean formula to find the distance between the zombie and bullet
+		//Use pythagorean formula to find the distance between the ghost and bullet
 		double length=Math.sqrt(dX*dX+dY*dY);
 		
-		/* Check if they are intersecting by adding the radii of the zombie and the bullet and seeing if
+		/* Check if they are intersecting by adding the radii of the ghost and the bullet and seeing if
 		 * the distance between them is equal or less than that
 		 */
 		if (length<=radius+b.radius) {
 			
 			//for testing:
-			System.out.println("health: " + health + " | damage: " + damage + " | speed: " +speed);	
+			//System.out.println("health: " + health + " | damage: " + damage + " | speed: " +speed);	
 			
 			health-=b.damage;
 			b.hasHit=true;
