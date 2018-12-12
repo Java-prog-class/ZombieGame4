@@ -26,7 +26,7 @@ public class GUI extends JFrame {
 	
 	final int mapSize=800;	//Size of map
 	
-	int spawnRate=110;	//Ghost spawn rate
+	int spawnRate=90;	//Ghost spawn rate
 	int mX=0,mY=0;	//Mouse X and Y
 	
 	Timer t=new Timer(20,new Time());
@@ -265,7 +265,7 @@ public class GUI extends JFrame {
 		//Zombies
 		for (int i=0;i<ghosts.size();i++) {
 			Ghost z=ghosts.get(i);
-			if (z.health<=0 ) {	//If zombie has 0 or less health
+			if (z.health<=0) {	//If zombie has 0 or less health
 				ghosts.remove(i);
 				i--;
 				spawnRate--;
