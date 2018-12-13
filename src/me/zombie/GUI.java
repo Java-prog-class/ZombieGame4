@@ -26,7 +26,7 @@ public class GUI extends JFrame {
 	
 	final int mapSize=800;	//Size of map
 	
-	int spawnRate=90;	//Ghost spawn rate
+	int spawnRate=110;	//Ghost spawn rate
 	int mX=0,mY=0;	//Mouse X and Y
 	
 	Timer t=new Timer(20,new Time());
@@ -37,6 +37,7 @@ public class GUI extends JFrame {
 	ArrayList<Ghost> ghosts=new ArrayList<Ghost>();
 	ArrayList<Barrier> barriers=new ArrayList<Barrier>();
 	ArrayList<Weapon> weapons=new ArrayList<Weapon>();
+	ArrayList<Pickup> pickups=new ArrayList<Pickup>();
 	
 	GUI(){
 		panel.addKeyListener(new KL());
@@ -44,6 +45,7 @@ public class GUI extends JFrame {
 		panel.addMouseMotionListener(new MML());
 		addWeapons();
 		addBarriers();
+		pickups.add(new Pickup(150,150));
 		
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
@@ -77,8 +79,14 @@ public class GUI extends JFrame {
 			
 			//Health/stats
 			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
-			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/16);
-			g2.drawString("Health: "+p.health, (panSize/7)*4+panSize/8, panSize/8);
+			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/22);
+			if (p.held.weaponHeld==Weapon.PISTOL) {
+				g2.drawString("Ammo: Infinite", (panSize/7)*4+panSize/8, panSize/22*2);
+			} else {
+				g2.drawString("Ammo: "+p.held.ammo, (panSize/7)*4+panSize/8, panSize/22*2);
+			}
+			
+			g2.drawString("Health: "+p.health, (panSize/7)*4+panSize/8, panSize/22*3);
 		}
 	}
 	
@@ -141,7 +149,8 @@ public class GUI extends JFrame {
 		int shotCount=0;
 		
 		public void actionPerformed(ActionEvent e) {
-			if (frameCount%spawnRate==0) zombieSpawn();
+			if (frameCount%spawnRate==0) ghostSpawn();
+			pickupSpawn();
 			movement();
 			checkHits();
 			if (p.firing && !p.hasShot) {
@@ -182,6 +191,9 @@ public class GUI extends JFrame {
 		for (Barrier b:barriers) {
 			b.move(p);
 		}
+		for (Pickup pick:pickups) {
+			pick.move(p);
+		}
 	}
 	
 	void draw(Graphics2D g) {	//Draw everything
@@ -193,6 +205,9 @@ public class GUI extends JFrame {
 		}
 		for (Barrier b:barriers) {
 			b.paint(g);
+		}
+		for (Pickup pick:pickups) {
+			pick.paint(g);
 		}
 	}
 	
@@ -219,6 +234,9 @@ public class GUI extends JFrame {
 					for (Barrier c:barriers) {
 						c.x+=-p.vx;
 					}
+					for (Pickup pick:pickups) {
+						pick.x-=p.vx;
+					}
 				} else {	//If it's a horizontal wall
 					for (Bullet a:bullets) {
 						a.y+=-p.vy;
@@ -229,7 +247,19 @@ public class GUI extends JFrame {
 					for (Barrier c:barriers) {
 						c.y+=-p.vy;
 					}
+					for (Pickup pick:pickups) {
+						pick.y-=p.vy;
+					}
 				}
+			}
+		}
+		
+		for (Pickup pick:pickups) {
+			if (p.checkHit(pick)) {
+				p.held.ammo+=p.held.ammoPick;
+				if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
+				
+				pick.picked=true;
 			}
 		}
 	}
@@ -265,7 +295,7 @@ public class GUI extends JFrame {
 		//Zombies
 		for (int i=0;i<ghosts.size();i++) {
 			Ghost z=ghosts.get(i);
-			if (z.health<=0) {	//If zombie has 0 or less health
+			if (z.health<=0 ) {	//If zombie has 0 or less health
 				ghosts.remove(i);
 				i--;
 				spawnRate--;
@@ -276,9 +306,18 @@ public class GUI extends JFrame {
 		if (p.health<=0) {
 			System.exit(500);
 		}
+		
+		//Pickups
+		for (int i=0;i<pickups.size();i++) {
+			Pickup pick=pickups.get(i);
+			if (pick.picked) {
+				pickups.remove(i);
+				i--;
+			}
+		}
 	}
 	
-	void zombieSpawn() {
+	void ghostSpawn() {
 		boolean bad=true;
 		int x=0,y=0;
 		
@@ -288,10 +327,10 @@ public class GUI extends JFrame {
 			
 			int dX=200-x,dY=200-y;
 			
-			//Use pythagorean formula to find the distance between the zombie and player
+			//Use pythagorean formula to find the distance between the ghost and player
 			double length=Math.sqrt(dX*dX+dY*dY);
 			
-			if (length<300) {	//If the zombie is spawning too close to the player, make new x and y
+			if (length<300) {	//If the ghost is spawning too close to the player, make new x and y
 				continue;
 			} else {
 				break;
@@ -300,16 +339,44 @@ public class GUI extends JFrame {
 		ghosts.add(new Ghost(x,y));
 	}
 	
-	void shoot() {
-		//Shoot a bullet
-		bullets.add(new Bullet(p,mX,mY));
+	void pickupSpawn() {
+		boolean start=false;
+		int x=0,y=0;
+		int rando=(int)(Math.random()*500);
+		if (rando==0) start=true;
 		
-		if (p.held.weaponHeld==Weapon.SHOTGUN) {
-			Point puh=Bullet.getShotgun(mX, mY,true);
-			bullets.add(new Bullet(p,puh.x,puh.y));
+		while (start) {
+			x=(int)(Math.random()*(mapSize)-mapSize/2);	//Create random x an y coords
+			y=(int)(Math.random()*(mapSize)-mapSize/2);
 			
-			puh=Bullet.getShotgun(mX, mY,false);
-			bullets.add(new Bullet(p,puh.x,puh.y));
+			int dX=200-x,dY=200-y;
+			
+			//Use pythagorean formula to find the distance between the pickup and player
+			double length=Math.sqrt(dX*dX+dY*dY);
+			
+			if (length<300) {	//If the pickup is spawning too close to the player, make new x and y
+				continue;
+			} else {
+				pickups.add(new Pickup(x,y));
+				break;
+			}
+		}
+	}
+	
+	void shoot() {
+		if (p.held.ammo>0 || p.held.weaponHeld==Weapon.PISTOL) {
+			//Shoot a bullet
+			bullets.add(new Bullet(p,mX,mY));
+			
+			if (p.held.weaponHeld==Weapon.SHOTGUN) {
+				Point puh=Bullet.getShotgun(mX, mY,true);
+				bullets.add(new Bullet(p,puh.x,puh.y));
+				
+				puh=Bullet.getShotgun(mX, mY,false);
+				bullets.add(new Bullet(p,puh.x,puh.y));
+			}
+			
+			p.held.ammo--;
 		}
 	}
 	

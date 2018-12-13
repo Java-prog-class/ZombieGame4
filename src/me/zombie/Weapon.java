@@ -8,6 +8,7 @@ public class Weapon {
 	int rate;
 	int ammo=0;
 	int ammoMax;
+	int ammoPick=0;
 	int radius=0;
 	int weaponHeld = 0;
 	boolean melee=false;
@@ -45,6 +46,8 @@ public class Weapon {
 			damage = 3;
 			rate = 20;
 			radius=7;
+			ammoMax=60;
+			ammoPick=20;
 			name="D. Eagle";
 		}
 		if(weaponHeld == SHOTGUN) {
@@ -53,6 +56,8 @@ public class Weapon {
 			damage = 5;
 			rate = 32;
 			radius=10;
+			ammoMax=24;
+			ammoPick=6;
 			name="Shotgun";
 		}
 		if(weaponHeld == UZI) {
@@ -61,6 +66,8 @@ public class Weapon {
 			rate = 5;
 			radius=3;
 			auto=true;
+			ammoMax=120;
+			ammoPick=40;
 			name="Uzi";
 		}
 		if(weaponHeld == SWORD) {
