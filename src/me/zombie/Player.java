@@ -9,6 +9,7 @@ public class Player {
 
 	//***global variables***
 	final int x=GUI.panSize/2, y=x, radius=10;
+	Weapon held=new Weapon(1);
 	
 	//stats
 	private static int maxHealth = 10;
@@ -24,15 +25,15 @@ public class Player {
 	int vx=0;
 	int vy=0;
 	
-	boolean iFrames=false;
+	boolean iFrames=false,firing=false,hasShot=false;
 	
 	public Player() {
 	}
 	
 	public void statCheck() {	//change stats depending on level of health
-		if (health > maxHealth) health = maxHealth;	//health can't go higher than 100
-		if (speed > maxSpeed) speed = maxSpeed;		//speed can't go higher than 15
-		if (speed < minSpeed) speed = minSpeed; 	//speed can't go lower than 5
+		if (health > maxHealth) health = maxHealth;	//health can't go higher than 10
+		if (speed > maxSpeed) speed = maxSpeed;		//speed can't go higher than 3
+		if (speed < minSpeed) speed = minSpeed; 	//speed can't go lower than 1
 		if (attack > maxAttack) attack = maxAttack;	//attack can't go higher than 10
 		if (attack < minAttack) attack = minAttack;	//attack can't go lower than 5
 		
@@ -112,6 +113,15 @@ public class Player {
 		Rectangle p=new Rectangle(x-radius,y-radius,radius*2,radius*2);
 		
 		if (p.intersects(b)) {
+			return true;
+		}
+		return false;
+	}
+	
+	boolean checkHit(Pickup p) {
+		Rectangle play=new Rectangle(x-radius,y-radius,radius*2,radius*2);
+		
+		if (p.intersects(play)) {
 			return true;
 		}
 		return false;
