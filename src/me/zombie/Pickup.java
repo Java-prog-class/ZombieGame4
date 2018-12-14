@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 
 public class Pickup extends Rectangle{
 	boolean picked=false;
+	boolean knife=false;
 	
 	Pickup(int x, int y){
 		this.x=x;

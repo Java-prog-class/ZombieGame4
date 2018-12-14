@@ -102,7 +102,8 @@ public class GUI extends JFrame {
 		public void mouseReleased(MouseEvent e) {
 			//If it is a full auto weapon deactivate shooting when the mouse is released, not when the firing sequence is done
 			if (p.held.auto) {
-				p.firing=false;	
+				shoot();
+				p.firing=false;
 			}
 		}
 		@Override
@@ -253,12 +254,21 @@ public class GUI extends JFrame {
 				}
 			}
 		}
-		
 		for (Pickup pick:pickups) {
 			if (p.checkHit(pick)) {
-				p.held.ammo+=p.held.ammoPick;
-				if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
-				
+				if (pick.knife) {	//If the pickup is the thrown knife
+					if (p.held.weaponHeld==Weapon.KNIFE) {	//If the knife is currently being held
+						p.held.ammo+=p.held.ammoPick;
+						if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
+						
+					} else {	//If the knife is not being held
+						weapons.set(Weapon.KNIFE, new Weapon(Weapon.KNIFE));
+						
+					}
+				} else {	//If it's just a regular pickup
+					p.held.ammo+=p.held.ammoPick;
+					if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
+				}
 				pick.picked=true;
 			}
 		}
@@ -269,11 +279,13 @@ public class GUI extends JFrame {
 		for (int i = 0; i < bullets.size(); i++) {
 			Bullet b = bullets.get(i);
 			if (b.x<0 || b.x>panSize || b.y<0 || b.y>panSize) {	//Go off screen
+				if (b.damage==Weapon.KNIFE_DAMAGE) knifeDrop(b);
 				bullets.remove(i);
 				i--;
 				continue;
 			}
-			if (b.hasHit) {	//If it has hit a zombie
+			if (b.health<=0) {	//If it has hit a zombie
+				if (b.damage==Weapon.KNIFE_DAMAGE) knifeDrop(b);
 				bullets.remove(i);
 				i--;
 				continue;
@@ -285,9 +297,10 @@ public class GUI extends JFrame {
 			}
 			for (Barrier bar:barriers) {
 				if (b.checkHit(bar)) {
+					if (b.damage==Weapon.KNIFE_DAMAGE) knifeDrop(b);
 					bullets.remove(i);
 					i--;
-					break;
+					continue;
 				}
 			}
 		}
@@ -380,6 +393,10 @@ public class GUI extends JFrame {
 		}
 	}
 	
+	void knifeDrop(Bullet b) {
+		pickups.add(new KnifePick((int)b.x,(int)b.y));
+	}
+	
 	void addBarriers() {
 		//Edge of screen barriers
 		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,true));	//Left wall
@@ -395,14 +412,12 @@ public class GUI extends JFrame {
 	}
 	
 	void addWeapons() {
-		weapons.add(new Weapon(0));
-		weapons.add(new Weapon(1));
-		weapons.add(new Weapon(2));
-		weapons.add(new Weapon(3));
-		weapons.add(new Weapon(4));
-		weapons.add(new Weapon(5));
-		weapons.add(new Weapon(6));
-		weapons.add(new Weapon(7));
+		weapons.add(new Weapon(Weapon.PISTOL));
+		weapons.add(new Weapon(Weapon.EAGLE));
+		weapons.add(new Weapon(Weapon.SHOTGUN));
+		weapons.add(new Weapon(Weapon.UZI));
+		weapons.add(new Weapon(Weapon.SWORD));
+		weapons.add(new Weapon(Weapon.KNIFE));
 	}
 	
 	void switchWeapons(KeyEvent e) {
@@ -412,8 +427,6 @@ public class GUI extends JFrame {
 		if (e.getKeyCode()==KeyEvent.VK_4) p.held=weapons.get(3);
 		if (e.getKeyCode()==KeyEvent.VK_5) p.held=weapons.get(4);
 		if (e.getKeyCode()==KeyEvent.VK_6) p.held=weapons.get(5);
-		if (e.getKeyCode()==KeyEvent.VK_7) p.held=weapons.get(6);
-		if (e.getKeyCode()==KeyEvent.VK_8) p.held=weapons.get(7);
 	}
 	
 	public static void main(String[] args) {

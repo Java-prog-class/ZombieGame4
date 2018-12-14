@@ -58,37 +58,37 @@ public class Player {
 	
 	public void move(KeyEvent e) {	//moves player using WASD or arrow keys... or moves BG 
 		//up
-		if(e.getKeyCode() == e.VK_W || e.getKeyCode() == e.VK_UP) {
+		if(e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
 			vy = speed;
 		}
 		//down
-		if(e.getKeyCode() == e.VK_S || e.getKeyCode() == e.VK_DOWN) {
+		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			vy = -speed;
 		}
 		//left
-		if(e.getKeyCode() == e.VK_A || e.getKeyCode() == e.VK_LEFT) {
+		if(e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
 			vx = speed;
 		}
 		//right
-		if(e.getKeyCode() == e.VK_D || e.getKeyCode() == e.VK_RIGHT) {
+		if(e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vx = -speed;
 		}
 	}
 	
 	public void stopMove(KeyEvent e) {
-		if(e.getKeyCode() == e.VK_W || e.getKeyCode() == e.VK_UP) {
+		if(e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
 			vy = 0;
 		}
 		//down
-		if(e.getKeyCode() == e.VK_S || e.getKeyCode() == e.VK_DOWN) {
+		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			vy = 0;
 		}
 		//left
-		if(e.getKeyCode() == e.VK_A || e.getKeyCode() == e.VK_LEFT) {
+		if(e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
 			vx = 0;
 		}
 		//right
-		if(e.getKeyCode() == e.VK_D || e.getKeyCode() == e.VK_RIGHT) {
+		if(e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vx = 0;
 		}
 	}
