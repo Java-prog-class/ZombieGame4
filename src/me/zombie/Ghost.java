@@ -69,7 +69,7 @@ public class Ghost {
 			//System.out.println("health: " + health + " | damage: " + damage + " | speed: " +speed);	
 			
 			health-=b.damage;
-			b.hasHit=true;
+			b.health--;
 		}
 	}
 }
