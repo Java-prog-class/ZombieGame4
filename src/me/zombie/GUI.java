@@ -53,6 +53,7 @@ public class GUI extends JFrame {
 		
 		this.pack();
 		this.setVisible(true);
+		p.held=weapons.get(0);
 		t.start();
 	}
 	
@@ -300,7 +301,7 @@ public class GUI extends JFrame {
 					if (b.damage==Weapon.KNIFE_DAMAGE) knifeDrop(b);
 					bullets.remove(i);
 					i--;
-					continue;
+					break;
 				}
 			}
 		}
@@ -397,12 +398,19 @@ public class GUI extends JFrame {
 		pickups.add(new KnifePick((int)b.x,(int)b.y));
 	}
 	
-	void addBarriers() {
+	void addBarriers() {	//False = horizontal
 		//Edge of screen barriers
 		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,true));	//Left wall
-		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize,false));	//Up wall
-		barriers.add(new Barrier(mapSize-panSize,panSize-mapSize,mapSize,true));	//Right wall
+		barriers.add(new Barrier(panSize-mapSize,panSize-mapSize,mapSize-100,false));	//Up wall
+		barriers.add(new Barrier(mapSize-panSize,panSize-mapSize-400,mapSize+400,true));	//Right wall
 		barriers.add(new Barrier(panSize-mapSize,mapSize-panSize,mapSize,false));	//Bottom wall
+		
+		barriers.add(new Barrier(panSize-110,panSize-mapSize-500,500,true));
+		barriers.add(new Barrier(panSize-110,panSize-mapSize-500,1000,false));
+		barriers.add(new Barrier(panSize,panSize-mapSize-400,1000,false));
+		barriers.add(new Barrier(panSize-120+1000,panSize-mapSize-500-750,750,true));
+		barriers.add(new Barrier(panSize+990,panSize-mapSize-500-750,850,true));
+		barriers.add(new Barrier(panSize-120+1000,panSize-mapSize-500-750,120,false));
 		
 		//There must be little book-end walls on the end of long walls
 		barriers.add(new Barrier(100,100,150,true));
@@ -421,6 +429,10 @@ public class GUI extends JFrame {
 	}
 	
 	void switchWeapons(KeyEvent e) {
+		for (int i=0;i<weapons.size();i++) {
+			if (weapons.get(i).weaponHeld==p.held.weaponHeld) weapons.set(i, p.held);
+		}
+		
 		if (e.getKeyCode()==KeyEvent.VK_1) p.held=weapons.get(0);
 		if (e.getKeyCode()==KeyEvent.VK_2) p.held=weapons.get(1);
 		if (e.getKeyCode()==KeyEvent.VK_3) p.held=weapons.get(2);
