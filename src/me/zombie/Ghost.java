@@ -10,7 +10,6 @@ public class Ghost {
 	static int speed=1;
 	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5,damage=1;
 	BufferedImage zombieImg = null;
->>>>>>> Stashed changes
 	
 	int speed = (int)(Math.random()*2 + 1);
 	int health=(int)(Math.random()*10 + 1);
