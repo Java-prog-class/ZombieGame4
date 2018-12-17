@@ -5,16 +5,18 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 public class Ghost {
-<<<<<<< Updated upstream
-=======
-	static int speed=1;
-	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10,health=5,damage=1;
-	BufferedImage zombieImg = null;
+
 	
 	int speed = (int)(Math.random()*2 + 1);
 	int health=(int)(Math.random()*10 + 1);
 	int damage=(int)(Math.random()*2 + 1);
+
 	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10;
+	
+	BufferedImage zombieImg = null;
+	
+	
+		
 	
 	Ghost(int x, int y){
 		this.x=x;

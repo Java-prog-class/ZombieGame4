@@ -5,10 +5,8 @@ import java.awt.Rectangle;
 
 public class Pickup extends Rectangle{
 	boolean picked=false;
-<<<<<<< Updated upstream
 	boolean knife=false;
-=======
->>>>>>> Stashed changes
+
 	
 	Pickup(int x, int y){
 		this.x=x;

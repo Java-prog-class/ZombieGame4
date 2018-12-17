@@ -276,7 +276,7 @@ public class GUI extends JFrame {
 				}
 			}
 		}
-<<<<<<< Updated upstream
+
 		for (Pickup pick:pickups) {
 			if (p.checkHit(pick)) {
 				if (pick.knife) {	//If the pickup is the thrown knife
@@ -292,14 +292,6 @@ public class GUI extends JFrame {
 					p.held.ammo+=p.held.ammoPick;
 					if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
 				}
-=======
-		
-		for (Pickup pick:pickups) {
-			if (p.checkHit(pick)) {
-				p.held.ammo+=p.held.ammoPick;
-				if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
-				
->>>>>>> Stashed changes
 				pick.picked=true;
 			}
 		}
@@ -411,7 +403,6 @@ public class GUI extends JFrame {
 		if (p.held.ammo>0 || p.held.weaponHeld==Weapon.PISTOL) {
 			//Shoot a bullet
 			bullets.add(new Bullet(p,mX,mY));
-<<<<<<< Updated upstream
 			
 			if (p.held.weaponHeld==Weapon.SHOTGUN) {
 				Point puh=Bullet.getShotgun(mX, mY,true);
@@ -421,17 +412,6 @@ public class GUI extends JFrame {
 				bullets.add(new Bullet(p,puh.x,puh.y));
 			}
 			
-=======
-			
-			if (p.held.weaponHeld==Weapon.SHOTGUN) {
-				Point puh=Bullet.getShotgun(mX, mY,true);
-				bullets.add(new Bullet(p,puh.x,puh.y));
-				
-				puh=Bullet.getShotgun(mX, mY,false);
-				bullets.add(new Bullet(p,puh.x,puh.y));
-			}
-			
->>>>>>> Stashed changes
 			p.held.ammo--;
 		}
 	}
