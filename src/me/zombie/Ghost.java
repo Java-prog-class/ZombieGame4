@@ -2,13 +2,21 @@ package me.zombie;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
 
 public class Ghost {
+
 	
 	int speed = (int)(Math.random()*2 + 1);
 	int health=(int)(Math.random()*10 + 1);
 	int damage=(int)(Math.random()*2 + 1);
+
 	int x,y,vx=speed,vy=speed,trigger=GUI.panSize+(GUI.panSize/2),radius=10;
+	
+	BufferedImage zombieImg = null;
+	
+	
+		
 	
 	Ghost(int x, int y){
 		this.x=x;
@@ -32,18 +40,22 @@ public class Ghost {
 	void move(Player p){	//Move toward the player (takes player x and y)
 		if (x>p.x) {	//If the ghost is to the right of the player
 			vx=-speed;
+			zombieImg = ImageHandler.getImage("ZombieLeft");
 		} else if (x==p.x){	//If they are on the same y axis
 			vx=0;
 		} else {	//If the ghost is to the left of the player
 			vx=speed;
+			zombieImg = ImageHandler.getImage("ZombieRight");
 		}
 		
 		if (y>p.y) {	//If the ghost is lower than the player
 			vy=-speed;
+			zombieImg = ImageHandler.getImage("ZombieUp");
 		} else if (y==p.y) {	//If it is at the same height
 			vy=0;
 		} else {	//If the ghost is above the player
 			vy=speed;
+			zombieImg = ImageHandler.getImage("ZombieDown");
 		}
 		
 		x+=vx+p.vx;
@@ -51,7 +63,8 @@ public class Ghost {
 	}
 	
 	void paint(Graphics2D g) {
-		g.fillOval(this.x-radius, this.y-radius, 2*radius, 2*radius);
+		//g.fillOval(this.x-radius, this.y-radius, 2*radius, 2*radius);
+		g.drawImage(zombieImg,this.x-radius, this.y-radius, 2*radius, 2*radius, null);
 	}
 	
 	void checkHit(Bullet b){

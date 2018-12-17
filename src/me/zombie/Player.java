@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 public class Player {
 
@@ -25,9 +26,12 @@ public class Player {
 	int vx=0;
 	int vy=0;
 	
+	BufferedImage img = null;
 	boolean iFrames=false,firing=false,hasShot=false;
 	
-	public Player() {
+	Player() {
+		//default image
+		img = ImageHandler.getImage("PlayUp");
 	}
 	
 	public void statCheck() {	//change stats depending on level of health
@@ -60,18 +64,23 @@ public class Player {
 		//up
 		if(e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
 			vy = speed;
+			img = ImageHandler.getImage("PlayUp");
 		}
 		//down
 		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			vy = -speed;
+			img = ImageHandler.getImage("PlayDown");
+			
 		}
 		//left
 		if(e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
 			vx = speed;
+			img = ImageHandler.getImage("PlayLeft");
 		}
 		//right
 		if(e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vx = -speed;
+			img = ImageHandler.getImage("PlayRight");
 		}
 	}
 	

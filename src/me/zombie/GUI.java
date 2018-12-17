@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
@@ -13,8 +14,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -39,7 +43,22 @@ public class GUI extends JFrame {
 	ArrayList<Weapon> weapons=new ArrayList<Weapon>();
 	ArrayList<Pickup> pickups=new ArrayList<Pickup>();
 	
+	//Main program
 	GUI(){
+		setupData();
+		setupGUI();				
+		t.start();
+	}
+
+	void setupData() {
+		Ghost z=new Ghost(100,100);
+		ghosts.add(z);
+		
+		ImageHandler.loadAllImages();
+		
+	}
+	
+	void setupGUI() {		
 		panel.addKeyListener(new KL());
 		panel.addMouseListener(new ML());
 		panel.addMouseMotionListener(new MML());
@@ -53,7 +72,6 @@ public class GUI extends JFrame {
 		
 		this.pack();
 		this.setVisible(true);
-		t.start();
 	}
 	
 	class DrawingPanel extends JPanel {
@@ -72,12 +90,16 @@ public class GUI extends JFrame {
 			panSize = this.getWidth();
 			Graphics2D g2 = (Graphics2D) g;		
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+			
+			//draw zombies and everything else
 			draw(g2);
 			
 			//Player
-			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
+			//g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
 			
-			//Health/stats
+			g2.drawImage(p.img, p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2, null);
+			
+			//Health
 			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
 			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/22);
 			if (p.held.weaponHeld==Weapon.PISTOL) {
@@ -428,6 +450,12 @@ public class GUI extends JFrame {
 		if (e.getKeyCode()==KeyEvent.VK_5) p.held=weapons.get(4);
 		if (e.getKeyCode()==KeyEvent.VK_6) p.held=weapons.get(5);
 	}
+	
+	void loadImages() {
+		
+	}
+	
+	
 	
 	public static void main(String[] args) {
 		new GUI();
