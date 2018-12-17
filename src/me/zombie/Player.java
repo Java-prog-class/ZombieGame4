@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 
 public class Player {
 
@@ -25,15 +26,18 @@ public class Player {
 	int vx=0;
 	int vy=0;
 	
+	BufferedImage img = null;
 	boolean iFrames=false,firing=false,hasShot=false;
 	
-	public Player() {
+	Player() {
+		//default image
+		img = ImageHandler.getImage("PlayUp");
 	}
 	
 	public void statCheck() {	//change stats depending on level of health
-		if (health > maxHealth) health = maxHealth;	//health can't go higher than 100
-		if (speed > maxSpeed) speed = maxSpeed;		//speed can't go higher than 15
-		if (speed < minSpeed) speed = minSpeed; 	//speed can't go lower than 5
+		if (health > maxHealth) health = maxHealth;	//health can't go higher than 10
+		if (speed > maxSpeed) speed = maxSpeed;		//speed can't go higher than 3
+		if (speed < minSpeed) speed = minSpeed; 	//speed can't go lower than 1
 		if (attack > maxAttack) attack = maxAttack;	//attack can't go higher than 10
 		if (attack < minAttack) attack = minAttack;	//attack can't go lower than 5
 		
@@ -58,37 +62,42 @@ public class Player {
 	
 	public void move(KeyEvent e) {	//moves player using WASD or arrow keys... or moves BG 
 		//up
-		if(e.getKeyCode() == e.VK_W || e.getKeyCode() == e.VK_UP) {
+		if(e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
 			vy = speed;
+			img = ImageHandler.getImage("PlayUp");
 		}
 		//down
-		if(e.getKeyCode() == e.VK_S || e.getKeyCode() == e.VK_DOWN) {
+		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			vy = -speed;
+			img = ImageHandler.getImage("PlayDown");
+			
 		}
 		//left
-		if(e.getKeyCode() == e.VK_A || e.getKeyCode() == e.VK_LEFT) {
+		if(e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
 			vx = speed;
+			img = ImageHandler.getImage("PlayLeft");
 		}
 		//right
-		if(e.getKeyCode() == e.VK_D || e.getKeyCode() == e.VK_RIGHT) {
+		if(e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vx = -speed;
+			img = ImageHandler.getImage("PlayRight");
 		}
 	}
 	
 	public void stopMove(KeyEvent e) {
-		if(e.getKeyCode() == e.VK_W || e.getKeyCode() == e.VK_UP) {
+		if(e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_UP) {
 			vy = 0;
 		}
 		//down
-		if(e.getKeyCode() == e.VK_S || e.getKeyCode() == e.VK_DOWN) {
+		if(e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_DOWN) {
 			vy = 0;
 		}
 		//left
-		if(e.getKeyCode() == e.VK_A || e.getKeyCode() == e.VK_LEFT) {
+		if(e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) {
 			vx = 0;
 		}
 		//right
-		if(e.getKeyCode() == e.VK_D || e.getKeyCode() == e.VK_RIGHT) {
+		if(e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			vx = 0;
 		}
 	}
@@ -113,6 +122,15 @@ public class Player {
 		Rectangle p=new Rectangle(x-radius,y-radius,radius*2,radius*2);
 		
 		if (p.intersects(b)) {
+			return true;
+		}
+		return false;
+	}
+	
+	boolean checkHit(Pickup p) {
+		Rectangle play=new Rectangle(x-radius,y-radius,radius*2,radius*2);
+		
+		if (p.intersects(play)) {
 			return true;
 		}
 		return false;

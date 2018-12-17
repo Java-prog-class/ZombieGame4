@@ -6,17 +6,22 @@ import java.awt.Rectangle;
 
 public class Bullet {
 	double x=GUI.panSize/2,y=GUI.panSize/2,vx=0,vy=0;
-	int radius=5,damage=1,speed=0;
+	int radius=5,damage=1,speed=0,health=0;
 	int distance=0,maxD;
-	boolean hasHit=false;
 	
 	Bullet(Player p, int a, int b){
 		radius=p.held.radius;
 		damage=p.held.damage;
 		speed=p.held.speed;
 		maxD=p.held.range;
+		health=p.held.health;
 		double a2=a, b2=b;
 		getShotDirection(a2,b2);
+		if (p.held.melee) {
+			x+=vx;
+			y+=vy;
+			vx=vy=0;
+		}
 	}
 	
 	void paint(Graphics2D g) {
@@ -26,8 +31,11 @@ public class Bullet {
 	}
 	
 	void move(Player p) {
-		x+=vx+p.vx;
-		y+=vy+p.vy;
+		if (!p.held.melee) {
+			x+=vx+p.vx;
+			y+=vy+p.vy;
+		}
+
 		
 		distance+=speed;
 	}
