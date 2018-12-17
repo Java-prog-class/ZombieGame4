@@ -15,7 +15,7 @@ public class Player {
 	private static int maxHealth = 10;
 	private static int maxSpeed = 3;
 	private static int minSpeed = 1;
-	private static int maxAttack = 10;	//TODO: depending on Weapons class attack variable here may be unnecessary
+	private static int maxAttack = 10;
 	private static int minAttack = 5; 
 	int health = maxHealth;
 	int speed = 3;	
@@ -41,20 +41,20 @@ public class Player {
 		if (health <= 0); //player death if health = 0... close game? end screen?
 	}
 	
-	public void healthChange() {	//adds or subtracts HP if touched by zombie... maybe combine w statCheck
-		//if different types of zombies change damage intake? 
+	//TODO healthChange and weaponCheck are unnecessary
+	 /*public void healthChange() {	//adds or subtracts HP if touched by ghost... maybe combine w statCheck
+		//if different types of ghosts change damage intake? 
 		
-		/* if (Player.x == Zombie.??? && Player.y == Zombie.???){
-		 * 		health = health - 1; 	//maybe reduce by more?
-		 * }
-		 */
+		//if (Player.x == Ghost.??? && Player.y == Ghost.???){
+		 //		health = health - 1; 	//maybe reduce by more?
+		 // }
 	}
 	
 	public void weaponCheck() {	//change weapon in use, adjust stats? or take care of this in Weapons class
 		//if (WeaponClass.weaponName = true...){
 		//all other Weapons.weaponName = false
 		//strength + or - accordingly.
-	}
+	} */
 	
 	public void move(KeyEvent e) {	//moves player using WASD or arrow keys... or moves BG 
 		//up
@@ -96,11 +96,11 @@ public class Player {
 	public void checkHit(Ghost z) {
 		int dX=this.x-z.x,dY=this.y-z.y;
 		
-		//Use pythagorean formula to find the distance between the zombie and bullet
+		//Use pythagorean formula to find the distance between the ghost and bullet
 		double length=Math.sqrt(dX*dX+dY*dY);
 		
 		/*
-		 * Check if they are intersecting by adding the radii of the zombie and the bullet and seeing if
+		 * Check if they are intersecting by adding the radii of the ghost and the bullet and seeing if
 		 * the distance between them is equal or less than that
 		 */
 		if (length<=radius+z.radius && !iFrames) {
@@ -113,6 +113,15 @@ public class Player {
 		Rectangle p=new Rectangle(x-radius,y-radius,radius*2,radius*2);
 		
 		if (p.intersects(b)) {
+			return true;
+		}
+		return false;
+	}
+	
+	boolean checkHit(Pickup p) {
+		Rectangle play=new Rectangle(x-radius,y-radius,radius*2,radius*2);
+		
+		if (p.intersects(play)) {
 			return true;
 		}
 		return false;

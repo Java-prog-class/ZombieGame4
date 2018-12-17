@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -13,8 +15,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -22,12 +28,15 @@ import javax.swing.Timer;
 
 public class GUI extends JFrame {
 	
-	static int panSize=400;	//Size of Screen
+	static int panSize=600;	//Size of Screen
 	
-	final int mapSize=800;	//Size of map
+	final static int mapSize=panSize*2;	//Size of map
 	
 	int spawnRate=110;	//Ghost spawn rate
 	int mX=0,mY=0;	//Mouse X and Y
+	
+	//Image bg = Toolkit.getDefaultToolkit().createImage("bgtest.png");
+	//BufferedImage bg = ImageIO.read(new File("/home/student/Downloads/bgtest.png"));
 	
 	Timer t=new Timer(20,new Time());
 	DrawingPanel panel=new DrawingPanel();
@@ -37,6 +46,7 @@ public class GUI extends JFrame {
 	ArrayList<Ghost> ghosts=new ArrayList<Ghost>();
 	ArrayList<Barrier> barriers=new ArrayList<Barrier>();
 	ArrayList<Weapon> weapons=new ArrayList<Weapon>();
+	ArrayList<Pickup> pickups=new ArrayList<Pickup>();
 	
 	GUI(){
 		panel.addKeyListener(new KL());
@@ -44,6 +54,7 @@ public class GUI extends JFrame {
 		panel.addMouseMotionListener(new MML());
 		addWeapons();
 		addBarriers();
+		pickups.add(new Pickup(150,150));
 		
 		this.add(panel);	
 		this.setTitle("Main graphics ..."); 
@@ -57,10 +68,10 @@ public class GUI extends JFrame {
 	class DrawingPanel extends JPanel {
 		
 		DrawingPanel() {	
-			this.setBackground(Color.WHITE);			
+			this.setBackground(Color.WHITE);		
+			//panel.createImage(panSize, panSize);
 			this.setPreferredSize(new Dimension(panSize, panSize));	
 			setResizable(false);
-			
 		}
 		
 		@Override
@@ -72,13 +83,24 @@ public class GUI extends JFrame {
 			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			draw(g2);
 			
+			//g2.drawImage(bg, 0, 0, null);	//FIXME: get a better image & figure out movement & stuff
+			//g2.drawImage(bg, null, panSize, panSize);
+			
 			//Player
 			g2.drawOval(p.x-p.radius, p.y-p.radius, p.radius*2, p.radius*2);
 			
 			//Health/stats
+			g.setColor(Color.WHITE);
+			g2.fillRect((panSize/3)*2, 0, panSize/3, panSize/6);
+			g.setColor(Color.BLACK);
 			g2.drawRect((panSize/3)*2, 0, panSize/3, panSize/6);
-			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/16);
-			g2.drawString("Health: "+p.health, (panSize/7)*4+panSize/8, panSize/8);
+			g2.drawString("Weapon: "+p.held.name, (panSize/7)*4+panSize/8, panSize/22);
+			if (p.held.weaponHeld==Weapon.PISTOL) {
+				g2.drawString("Ammo: Infinite", (panSize/7)*4+panSize/8, panSize/22*2);
+			} else {
+				g2.drawString("Ammo: "+p.held.ammo, (panSize/7)*4+panSize/8, panSize/22*2);
+			}
+			g2.drawString("Health: "+p.health, (panSize/7)*4+panSize/8, panSize/22*3);
 		}
 	}
 	
@@ -115,7 +137,6 @@ public class GUI extends JFrame {
 			mX=e.getX();
 			mY=e.getY();
 		}
-		
 	}
 	
 	class KL implements KeyListener{
@@ -141,7 +162,8 @@ public class GUI extends JFrame {
 		int shotCount=0;
 		
 		public void actionPerformed(ActionEvent e) {
-			if (frameCount%spawnRate==0) zombieSpawn();
+			if (frameCount%spawnRate==0) ghostSpawn();
+			pickupSpawn();
 			movement();
 			checkHits();
 			if (p.firing && !p.hasShot) {
@@ -165,7 +187,6 @@ public class GUI extends JFrame {
 				p.hasShot=false;
 				shotCount=0;
 			}
-			
 			checkDeaths();
 			panel.repaint();
 			frameCount++;
@@ -182,6 +203,9 @@ public class GUI extends JFrame {
 		for (Barrier b:barriers) {
 			b.move(p);
 		}
+		for (Pickup pick:pickups) {
+			pick.move(p);
+		}
 	}
 	
 	void draw(Graphics2D g) {	//Draw everything
@@ -193,6 +217,9 @@ public class GUI extends JFrame {
 		}
 		for (Barrier b:barriers) {
 			b.paint(g);
+		}
+		for (Pickup pick:pickups) {
+			pick.paint(g);
 		}
 	}
 	
@@ -219,6 +246,9 @@ public class GUI extends JFrame {
 					for (Barrier c:barriers) {
 						c.x+=-p.vx;
 					}
+					for (Pickup pick:pickups) {
+						pick.x-=p.vx;
+					}
 				} else {	//If it's a horizontal wall
 					for (Bullet a:bullets) {
 						a.y+=-p.vy;
@@ -229,7 +259,19 @@ public class GUI extends JFrame {
 					for (Barrier c:barriers) {
 						c.y+=-p.vy;
 					}
+					for (Pickup pick:pickups) {
+						pick.y-=p.vy;
+					}
 				}
+			}
+		}
+		
+		for (Pickup pick:pickups) {
+			if (p.checkHit(pick)) {
+				p.held.ammo+=p.held.ammoPick;
+				if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
+				
+				pick.picked=true;
 			}
 		}
 	}
@@ -243,7 +285,7 @@ public class GUI extends JFrame {
 				i--;
 				continue;
 			}
-			if (b.hasHit) {	//If it has hit a zombie
+			if (b.hasHit) {	//If it has hit a ghost
 				bullets.remove(i);
 				i--;
 				continue;
@@ -262,10 +304,10 @@ public class GUI extends JFrame {
 			}
 		}
 		
-		//Zombies
+		//Ghosts
 		for (int i=0;i<ghosts.size();i++) {
 			Ghost z=ghosts.get(i);
-			if (z.health<=0 ) {	//If zombie has 0 or less health
+			if (z.health<=0 ) {	//If ghost has 0 or less health
 				ghosts.remove(i);
 				i--;
 				spawnRate--;
@@ -276,9 +318,18 @@ public class GUI extends JFrame {
 		if (p.health<=0) {
 			System.exit(500);
 		}
+		
+		//Pickups
+		for (int i=0;i<pickups.size();i++) {
+			Pickup pick=pickups.get(i);
+			if (pick.picked) {
+				pickups.remove(i);
+				i--;
+			}
+		}
 	}
 	
-	void zombieSpawn() {
+	void ghostSpawn() {
 		boolean bad=true;
 		int x=0,y=0;
 		
@@ -288,10 +339,10 @@ public class GUI extends JFrame {
 			
 			int dX=200-x,dY=200-y;
 			
-			//Use pythagorean formula to find the distance between the zombie and player
+			//Use pythagorean formula to find the distance between the ghost and player
 			double length=Math.sqrt(dX*dX+dY*dY);
 			
-			if (length<300) {	//If the zombie is spawning too close to the player, make new x and y
+			if (length<300) {	//If the ghost is spawning too close to the player, make new x and y
 				continue;
 			} else {
 				break;
@@ -300,16 +351,43 @@ public class GUI extends JFrame {
 		ghosts.add(new Ghost(x,y));
 	}
 	
-	void shoot() {
-		//Shoot a bullet
-		bullets.add(new Bullet(p,mX,mY));
+	void pickupSpawn() {
+		boolean start=false;
+		int x=0,y=0;
+		int rando=(int)(Math.random()*500);
+		if (rando==0) start=true;
 		
-		if (p.held.weaponHeld==Weapon.SHOTGUN) {
-			Point puh=Bullet.getShotgun(mX, mY,true);
-			bullets.add(new Bullet(p,puh.x,puh.y));
+		while (start) {
+			x=(int)(Math.random()*(mapSize)-mapSize/2);	//Create random x an y coords
+			y=(int)(Math.random()*(mapSize)-mapSize/2);
 			
-			puh=Bullet.getShotgun(mX, mY,false);
-			bullets.add(new Bullet(p,puh.x,puh.y));
+			int dX=200-x,dY=200-y;
+			
+			//Use pythagorean formula to find the distance between the pickup and player
+			double length=Math.sqrt(dX*dX+dY*dY);
+			
+			if (length<300) {	//If the pickup is spawning too close to the player, make new x and y
+				continue;
+			} else {
+				pickups.add(new Pickup(x,y));
+				break;
+			}
+		}
+	}
+	
+	void shoot() {
+		if (p.held.ammo>0 || p.held.weaponHeld==Weapon.PISTOL) {
+			//Shoot a bullet
+			bullets.add(new Bullet(p,mX,mY));
+			
+			if (p.held.weaponHeld==Weapon.SHOTGUN) {
+				Point puh=Bullet.getShotgun(mX, mY,true);
+				bullets.add(new Bullet(p,puh.x,puh.y));
+				
+				puh=Bullet.getShotgun(mX, mY,false);
+				bullets.add(new Bullet(p,puh.x,puh.y));
+			}
+			p.held.ammo--;
 		}
 	}
 	
@@ -349,7 +427,8 @@ public class GUI extends JFrame {
 		if (e.getKeyCode()==KeyEvent.VK_8) p.held=weapons.get(7);
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		new GUI();
+		BufferedImage bg = ImageIO.read(new File("/home/student/Downloads/bgtest.png"));
 	} 
 }

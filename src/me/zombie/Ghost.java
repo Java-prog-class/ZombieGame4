@@ -45,7 +45,6 @@ public class Ghost {
 		} else {	//If the ghost is above the player
 			vy=speed;
 		}
-		
 		x+=vx+p.vx;
 		y+=vy+p.vy;
 	}

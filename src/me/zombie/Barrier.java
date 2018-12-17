@@ -5,7 +5,6 @@ import java.awt.Rectangle;
 
 public class Barrier extends Rectangle{
 	boolean wall;
-
 	
 	Barrier(int x, int y, int length, boolean vertical){
 		width=10;
