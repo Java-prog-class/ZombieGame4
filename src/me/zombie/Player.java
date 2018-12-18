@@ -9,11 +9,10 @@ public class Player {
 
 	//***global variables***
 	final int x=GUI.panSize/2, y=x, radius=10;
-	Weapon held=new Weapon(1);
+	Weapon held=new Weapon(0);
 	
 	//stats
-	private static int maxHealth = 10;
-	int health = maxHealth;
+	int health = 100;
 	int speed = 3;	
 	int attack = 10; 
 	

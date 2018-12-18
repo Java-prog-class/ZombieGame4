@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,6 +33,7 @@ public class GUI extends JFrame {
 	Timer t=new Timer(20,new Time());
 	DrawingPanel panel=new DrawingPanel();
 	Player p=new Player();
+	Rectangle trigger=new Rectangle(panSize-120+1000,panSize-mapSize-500-750,120,180);	//Trigger for the troll room
 	
 	ArrayList<Bullet> bullets=new ArrayList<Bullet>();
 	ArrayList<Ghost> ghosts=new ArrayList<Ghost>();
@@ -53,7 +55,6 @@ public class GUI extends JFrame {
 		
 		this.pack();
 		this.setVisible(true);
-		p.held=weapons.get(0);
 		t.start();
 	}
 	
@@ -196,6 +197,8 @@ public class GUI extends JFrame {
 		for (Pickup pick:pickups) {
 			pick.move(p);
 		}
+		trigger.x+=p.vx;
+		trigger.y+=p.vy;
 	}
 	
 	void draw(Graphics2D g) {	//Draw everything
@@ -261,17 +264,24 @@ public class GUI extends JFrame {
 					if (p.held.weaponHeld==Weapon.KNIFE) {	//If the knife is currently being held
 						p.held.ammo+=p.held.ammoPick;
 						if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
-						
-					} else {	//If the knife is not being held
+						pick.picked=true;
+					} else if (weapons.get(5).ammo<1){	//If the knife is not being held
 						weapons.set(Weapon.KNIFE, new Weapon(Weapon.KNIFE));
-						
+						pick.picked=true;
 					}
 				} else {	//If it's just a regular pickup
 					p.held.ammo+=p.held.ammoPick;
 					if (p.held.ammo>p.held.ammoMax) p.held.ammo=p.held.ammoMax;
+					pick.picked=true;
 				}
-				pick.picked=true;
+				
 			}
+		}
+		
+		Rectangle pl=new Rectangle(p.x-p.radius,p.y-p.radius,p.radius*2,p.radius*2);
+		if (pl.intersects(trigger)) {	//Check if the player is in the correct place
+			barriers.add(new Barrier(p.x-100,p.y+100,200,false));	//Put the wall in place
+			trigger.y+=100000000;	//Move thr trigger away
 		}
 	}
 	
@@ -312,7 +322,9 @@ public class GUI extends JFrame {
 			if (z.health<=0 ) {	//If zombie has 0 or less health
 				ghosts.remove(i);
 				i--;
-				spawnRate--;
+				if (spawnRate>1) {
+					spawnRate--;
+				}
 			}
 		}
 		
@@ -382,6 +394,7 @@ public class GUI extends JFrame {
 			//Shoot a bullet
 			bullets.add(new Bullet(p,mX,mY));
 			
+			//Create extra shotgun bullets
 			if (p.held.weaponHeld==Weapon.SHOTGUN) {
 				Point puh=Bullet.getShotgun(mX, mY,true);
 				bullets.add(new Bullet(p,puh.x,puh.y));
@@ -394,7 +407,7 @@ public class GUI extends JFrame {
 		}
 	}
 	
-	void knifeDrop(Bullet b) {
+	void knifeDrop(Bullet b) {	//Create the knife pickup when the throwing knife hits something
 		pickups.add(new KnifePick((int)b.x,(int)b.y));
 	}
 	
@@ -405,18 +418,50 @@ public class GUI extends JFrame {
 		barriers.add(new Barrier(mapSize-panSize,panSize-mapSize-400,mapSize+400,true));	//Right wall
 		barriers.add(new Barrier(panSize-mapSize,mapSize-panSize,mapSize,false));	//Bottom wall
 		
-		barriers.add(new Barrier(panSize-110,panSize-mapSize-500,500,true));
+		//Upper Corridor
+		barriers.add(new Barrier(panSize-110,panSize-mapSize-500,700,true));
+		barriers.add(new Barrier(panSize-110,panSize-mapSize+190,10,false));	//Book-end
 		barriers.add(new Barrier(panSize-110,panSize-mapSize-500,1000,false));
 		barriers.add(new Barrier(panSize,panSize-mapSize-400,1000,false));
-		barriers.add(new Barrier(panSize-120+1000,panSize-mapSize-500-750,750,true));
-		barriers.add(new Barrier(panSize+990,panSize-mapSize-500-750,850,true));
-		barriers.add(new Barrier(panSize-120+1000,panSize-mapSize-500-750,120,false));
+		barriers.add(new Barrier(panSize+880,panSize-mapSize-1250,750,true));
+		barriers.add(new Barrier(panSize+990,panSize-mapSize-1250,850,true));
+		barriers.add(new Barrier(panSize+880,panSize-mapSize-1250,120,false));
+		pickups.add(new Pickup(panSize+900,panSize-mapSize-1200));
+		pickups.add(new Pickup(panSize+940,panSize-mapSize-1200));
 		
-		//There must be little book-end walls on the end of long walls
+		//Inner cross
+		barriers.add(new Barrier(-5,-panSize/2,mapSize/2+100,true));
+		barriers.add(new Barrier(-5,-panSize/2,10,false));	//Book-end
+		barriers.add(new Barrier(-5,panSize/2+90,10,false));	//Book-end
+		barriers.add(new Barrier(-panSize/2,-5,mapSize/2-100,false));
+		barriers.add(new Barrier(-panSize/2,-5,10,true));	//Book-end
+		barriers.add(new Barrier(-panSize/2+mapSize/2-110,-5,10,true));	//Book-end
+		barriers.add(new Barrier((panSize/5)*3,-5,mapSize/5,false));
+		barriers.add(new Barrier((panSize/5)*3,-5,10,true));	//Book-end
+		barriers.add(new Barrier(-5,-panSize/2,panSize/2,false));
+		barriers.add(new Barrier(panSize/2-15,-panSize/2,10,true));	//Book-end
+		
+		//Q4 - There must be little book-end walls on the end of long walls
 		barriers.add(new Barrier(100,100,150,true));
 		barriers.add(new Barrier(100,240,10,false));	//Book-end
-		barriers.add(new Barrier(100,100,150,false));
-		barriers.add(new Barrier(240,100,10,true));	//Book-End
+		barriers.add(new Barrier(100,100,250,false));
+		barriers.add(new Barrier(340,100,10,true));	//Book-End
+		barriers.add(new Barrier(200,300,200,false));
+		barriers.add(new Barrier(200,300,10,true));	//Book-end
+		
+		//Q3
+		barriers.add(new Barrier(-300,panSize/2+90,305,false));
+		barriers.add(new Barrier(-300,panSize/2+90,10,true));//Book-end
+		barriers.add(new Barrier(-panSize,panSize/2,305,false));
+		barriers.add(new Barrier(-panSize+295,panSize/2,10,true));//Book-end
+		barriers.add(new Barrier(-panSize/2,-5,panSize/3,true));
+		barriers.add(new Barrier(-panSize/2,panSize/3-15,10,false));	//Book-end
+		
+		//Q2
+		barriers.add(new Barrier(-300,-300,200,false));
+		barriers.add(new Barrier(-300,-300,200,true));
+		barriers.add(new Barrier(-100,-300,200,true));
+		barriers.add(new Barrier(-300,-110,210,false));
 	}
 	
 	void addWeapons() {
