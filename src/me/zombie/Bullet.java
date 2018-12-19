@@ -8,6 +8,7 @@ public class Bullet {
 	double x=GUI.panSize/2,y=GUI.panSize/2,vx=0,vy=0;
 	int radius=5,damage=1,speed=0,health=0;
 	int distance=0,maxD;
+	boolean melee;
 	
 	Bullet(Player p, int a, int b){
 		radius=p.held.radius;
@@ -17,11 +18,12 @@ public class Bullet {
 		health=p.held.health;
 		double a2=a, b2=b;
 		getShotDirection(a2,b2);
-		if (p.held.melee) {
+		melee=p.held.melee;
+		if (melee) {
 			x+=vx;
 			y+=vy;
 			vx=vy=0;
-		}
+		} 
 	}
 	
 	void paint(Graphics2D g) {
@@ -31,7 +33,7 @@ public class Bullet {
 	}
 	
 	void move(Player p) {
-		if (!p.held.melee) {
+		if (!melee) {
 			x+=vx+p.vx;
 			y+=vy+p.vy;
 		}

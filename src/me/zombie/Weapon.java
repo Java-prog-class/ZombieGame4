@@ -31,6 +31,7 @@ public class Weapon {
 			damage = 1;
 			rate = 5;
 			radius=5;
+			ammoMax=0;
 			name="Pistol";
 		}
 		if(weaponHeld == EAGLE) {
